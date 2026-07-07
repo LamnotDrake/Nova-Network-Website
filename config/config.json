@@ -4,9 +4,9 @@
     "name": "Nova Network",
     "ip": "play.nova-smp.pro",
     "port": 5003,
-    "version": "1.8-26.1",
-    "tagline": "Nova Network is one of the best Minecraft servers with players from all parts of the world!",
-    "discord": "https://discord.gg/WMR9wCnMke",
+    "version": "1.8-26.2",
+    "tagline": "The ultimate minecrfat network. Built for legends.",
+    "discord": "https://discord.gg/BbatqfkjvA",
     "store": "/store.html",
     "website": "https://nova-smp.pro",
     "maxPlayers": 500,
@@ -15,53 +15,53 @@
   },
   "backend": {
     "port": 3001,
-    "adminPassword": "admin-nova-2026",
+    "adminPassword": "nova-network-admin",
     "webhookSecret": "",
     "statusCacheSecs": 30,
-    "_note": "IPs & Actions are Logged"
+    "_note": "IPs & Actions Are Logged."
   },
   "theme": {
-    "accentJade": "#7C3AED",
+    "accentJade": "##7C3AED",
     "accentAmber": "#EC4899",
-    "accentIce": "#F5D0FE",
+    "accentIce": "##F5D0FE",
     "bgVoid": "#08090b"
   },
   "homepageStats": {
-    "registeredPlayers": 5291,
+    "registeredPlayers": SOON,
     "uptime": "99.7%"
   },
   "announcement": {
     "enabled": true,
-    "text": "🎉 Nova Network Announcements",
+    "text": "🎉 Nova Network Annoucements.",
     "type": "info"
   },
   "gameModes": [
     {
       "id": "survival",
-      "name": "Survival",
+      "name": "Ultimate Survival",
       "tag": "PVE / PVP",
-      "players": 0,
+      "players": 412,
       "badge": "jade"
     },
     {
       "id": "skyblock",
       "name": "Aether Skyblock",
       "tag": "ECONOMY",
-      "players": 0,
+      "players": 387,
       "badge": "ice"
     },
     {
       "id": "factions",
       "name": "Blood Factions",
       "tag": "HARDCORE PVP",
-      "players": 0,
+      "players": 284,
       "badge": "red"
     },
     {
       "id": "prison",
       "name": "OP Prison",
       "tag": "MINING / PVP",
-      "players": 0,
+      "players": 165,
       "badge": "amber"
     }
   ],
@@ -502,19 +502,19 @@
   ],
   "staffTeam": [
     {
-      "username": "Lam",
+      "username": "Pathum",
       "role": "Owner",
       "tagline": "Built and runs the network."
     },
     {
-      "username": "Larpoke",
-      "role": "Owner",
+      "username": "Steve",
+      "role": "Head Admin",
       "tagline": "Handles bans, appeals, and server policy."
     },
     {
-      "username": "Notkushflayer",
-      "role": "Executive",
-      "tagline": "Makes sure Nova Network runs smoothly."
+      "username": "Alex",
+      "role": "Moderator",
+      "tagline": "Keeps chat clean and helps new players."
     }
   ],
   "staffPositions": [
