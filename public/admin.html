@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Nova Network — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+
+/* DESIGN */
+:root {
+  --bg:      #080c10;
+  --bg2:     #0d1318;
+  --surface: #0f1923;
+  --surf2:   #152030;
+  --border:  rgba(0,212,200,.12);
+  --borderh: rgba(0,212,200,.3);
+  --cyan:    #00d4c8;
+  --emerald: #2ecc71;
+  --gold:    #f0a500;
+  --red:     #e74c3c;
+  --t1: #e8f4f8;
+  --t2: #7a9bac;
+  --tm: #3d5a6a;
+  --ff: 'Rajdhani',sans-serif;
+  --fd: 'Cinzel',serif;
+  --fm: 'Share Tech Mono',monospace;
+  --r:  12px;
+  --tr: .2s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{background:var(--bg);color:var(--t1);font-family:var(--ff);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:var(--ff);border:none}
+input,textarea{font-family:var(--ff)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:99px}
+
+/* LOGIN GATE */
+#login-gate {
+  position:fixed;inset:0;z-index:200;background:rgba(4,8,12,.96);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;
+}
+.gate-box {
+  background:var(--surface);border:1px solid var(--borderh);border-radius:20px;
+  padding:48px 40px;max-width:400px;width:90%;text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative;overflow:hidden;
+}
+.gate-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--gold))}
+.gate-logo{font-size:2.5rem;color:var(--cyan);text-shadow:0 0 24px var(--cyan);margin-bottom:12px;display:block}
+.gate-title{font-family:var(--fd);font-size:1.6rem;font-weight:700;margin-bottom:8px}
+.gate-desc{font-size:.85rem;color:var(--t2);margin-bottom:24px}
+.gate-input{width:100%;background:var(--bg2);border:1px solid var(--borderh);border-radius:var(--r);padding:12px 16px;color:var(--t1);font-family:var(--fm);font-size:.95rem;margin-bottom:12px;outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.gate-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,200,.1)}
+.gate-err{font-size:.78rem;color:var(--red);margin-bottom:12px;min-height:18px}
+.gate-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#009b93);color:#060a0c;font-weight:700;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--r);transition:all var(--tr)}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,212,200,.4)}
+
+/* LAYOUT */
+.admin-layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border)}
+.sb-logo-icon{font-size:1.4rem;color:var(--cyan);text-shadow:0 0 12px var(--cyan)}
+.sb-logo-text{font-family:var(--fd);font-size:1rem;font-weight:700}
+.sb-logo-badge{font-size:.6rem;background:rgba(0,212,200,.15);color:var(--cyan);padding:2px 7px;border-radius:99px;border:1px solid rgba(0,212,200,.25);letter-spacing:.06em}
+.sb-section{padding:12px 20px 4px;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--tm);font-weight:700}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:.88rem;font-weight:600;color:var(--t2);cursor:pointer;transition:all var(--tr);border-left:2px solid transparent}
+.sb-item:hover,.sb-item.active{color:var(--cyan);background:rgba(0,212,200,.06);border-left-color:var(--cyan)}
+.sb-item-icon{font-size:1rem;width:20px;text-align:center}
+.sb-logout{margin-top:auto;padding:20px 20px 0;border-top:1px solid var(--border)}
+.sb-logout-btn{width:100%;padding:10px;background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.25);border-radius:var(--r);color:#e74c3c;font-weight:600;font-size:.82rem;transition:all var(--tr)}
+.sb-logout-btn:hover{background:rgba(231,76,60,.2)}
+
+/* MAIN */
+.admin-main{padding:32px;overflow-x:hidden}
+.page{display:none}
+.page.active{display:block}
+
+/* Page header */
+.page-hd{margin-bottom:28px}
+.page-eye{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--cyan);font-weight:700;margin-bottom:4px}
+.page-title{font-family:var(--fd);font-size:1.8rem;font-weight:700}
+.page-desc{font-size:.85rem;color:var(--t2);margin-top:6px}
+
+/* Cards */
+.acard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.acard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,200,.15),transparent)}
+.acard-title{font-family:var(--fd);font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.acard-title span{font-size:1.1rem}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:all var(--tr)}
+.stat-card:hover{border-color:var(--borderh)}
+.sc-val{font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--cyan);display:block}
+.sc-val.gold{color:var(--gold)}
+.sc-val.green{color:var(--emerald)}
+.sc-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);margin-top:4px;display:block}
+
+/* Table */
+.atable{width:100%;border-collapse:collapse}
+.atable th{text-align:left;padding:10px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tm);border-bottom:1px solid var(--border);font-weight:700}
+.atable td{padding:12px 12px;font-size:.85rem;border-bottom:1px solid rgba(0,212,200,.05);vertical-align:middle}
+.atable tr:hover td{background:rgba(0,212,200,.03)}
+.atable .mono{font-family:var(--fm);color:var(--cyan)}
+.atable .badge{display:inline-block;font-size:.6rem;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:99px;letter-spacing:.06em}
+.b-green{background:rgba(46,204,113,.15);color:var(--emerald)}
+.b-gold {background:rgba(240,165,0,.15);color:var(--gold)}
+.b-muted{background:rgba(255,255,255,.06);color:var(--t2)}
+
+/* Inputs */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--t2);font-weight:700;margin-bottom:6px}
+.inp,.txta{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;color:var(--t1);font-family:var(--ff);font-size:.9rem;outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.txta{resize:vertical;min-height:100px}
+.inp:focus,.txta:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,200,.08)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--r);font-weight:700;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;transition:all var(--tr);cursor:pointer;border:none;font-family:var(--ff)}
+.btn-c { background:linear-gradient(135deg,var(--cyan),#009b93);color:#060a0c;box-shadow:0 4px 14px rgba(0,212,200,.3) }
+.btn-c:hover { transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,200,.45) }
+.btn-g { background:linear-gradient(135deg,var(--emerald),#27ae60);color:#060a0c }
+.btn-g:hover { transform:translateY(-1px) }
+.btn-r { background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);color:var(--red) }
+.btn-r:hover { background:rgba(231,76,60,.22) }
+.btn-o { background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.3);color:var(--gold) }
+.btn-o:hover { background:rgba(240,165,0,.22) }
+.btn-ghost { background:transparent;border:1px solid var(--border);color:var(--t2) }
+.btn-ghost:hover { border-color:var(--borderh);color:var(--cyan) }
+.btn:disabled { opacity:.5;cursor:not-allowed;transform:none !important }
+
+/* Inline row */
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.row .field{flex:1;min-width:180px}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--surf2);border-radius:99px;cursor:pointer;transition:background var(--tr)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--t2);border-radius:50%;transition:transform var(--tr)}
+.toggle input:checked+.toggle-slider{background:var(--cyan)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px);background:#060a0c}
+.toggle-label{font-size:.88rem;font-weight:600;color:var(--t2)}
+
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+  </style>
+
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate">
+  <div class="gate-box">
+    <span class="gate-logo">▣</span>
+    <h2 class="gate-title">Admin Panel</h2>
+    <p class="gate-desc">Enter the admin password from <code>config/config.json</code></p>
+    <input id="gate-name" class="gate-input" type="text" placeholder="Your name (optional, shown in the audit log)" maxlength="40"/>
+    <input id="gate-pwd" class="gate-input" type="password" placeholder="Admin password"
+           onkeydown="if(event.key==='Enter')Admin.login()"/>
+    <div class="gate-err" id="gate-err"></div>
+    <button class="gate-btn" onclick="Admin.login()">⤷ Enter Admin Panel</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="admin-layout" id="admin-layout" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <span class="sb-logo-icon">▣</span>
+      <span class="sb-logo-text">Nova Network</span>
+      <span class="sb-logo-badge">ADMIN</span>
+    </div>
+
+    <span class="sb-section">Dashboard</span>
+    <div class="sb-item active" data-page="overview" onclick="Admin.nav('overview')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/><path d="M2 20h20"/></svg></span></span> Overview
+    </div>
+    <div class="sb-item" data-page="players" onclick="Admin.nav('players')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span></span> Players
+    </div>
+
+    <span class="sb-section">Management</span>
+    <div class="sb-item" data-page="simulate" onclick="Admin.nav('simulate')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="9" width="16" height="12" rx="1"/><path d="M9 9V6a3 3 0 0 1 6 0v3M9 14l2 2 4-4"/></svg></span>️</span> Simulate Vote
+    </div>
+    <div class="sb-item" data-page="announcement" onclick="Admin.nav('announcement')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11v3a1 1 0 0 0 1 1h2l4 5V6L6 9H4a1 1 0 0 0-1 2"/><path d="M15 7a4 4 0 0 1 0 10"/><path d="M18 5a8 8 0 0 1 0 14"/></svg></span></span> Announcement
+    </div>
+    <div class="sb-item" data-page="messages" onclick="Admin.nav('messages')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h11v14a2 2 0 0 1-2 2H7"/><path d="M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2M7 9h8M7 13h8"/></svg></span></span> Daily Messages
+    </div>
+    <div class="sb-item" data-page="applications" onclick="Admin.nav('applications')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span></span> Staff Applications
+    </div>
+
+    <span class="sb-section">Config</span>
+    <div class="sb-item" data-page="security" onclick="Admin.nav('security')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5z"/></svg></span>️</span> Security Log
+    </div>
+    <div class="sb-item" data-page="audit" onclick="Admin.nav('audit')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h11v14a2 2 0 0 1-2 2H7"/><path d="M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2M7 9h8M7 13h8"/></svg></span></span> Audit Log
+    </div>
+    <div class="sb-item" onclick="window.open('/','_blank')">
+      <span class="sb-item-icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg></span></span> View Dashboard ↗
+    </div>
+
+    <div class="sb-logout">
+      <button class="sb-logout-btn" onclick="Admin.logout()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M14 4 7 5v14l7 1M14 4v16"/><path d="m20 12-3-3m3 3-3 3m3-3H10"/></svg></span> Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <div class="page active" id="page-overview">
+      <div class="page-hd">
+        <span class="page-eye">Admin Dashboard</span>
+        <h1 class="page-title">Overview</h1>
+        <p class="page-desc">Live server and voting stats. Refreshes automatically.</p>
+      </div>
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><span class="sc-val" id="ov-today">—</span><span class="sc-label">Votes Today</span></div>
+        <div class="stat-card"><span class="sc-val gold" id="ov-weekly">—</span><span class="sc-label">This Week</span></div>
+        <div class="stat-card"><span class="sc-val green" id="ov-players">—</span><span class="sc-label">Total Players</span></div>
+        <div class="stat-card"><span class="sc-val" id="ov-pending">—</span><span class="sc-label">Pending Rewards</span></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><span class="sc-val" id="ov-active">—</span><span class="sc-label">Active Today</span></div>
+        <div class="stat-card"><span class="sc-val gold" id="ov-streak">—</span><span class="sc-label">Longest Streak</span></div>
+        <div class="stat-card"><span class="sc-val green" id="ov-earned">—</span><span class="sc-label">Rewards Earned</span></div>
+        <div class="stat-card"><span class="sc-val" id="ov-top">—</span><span class="sc-label">Top Supporter</span></div>
+      </div>
+    </div>
+
+    <!-- PLAYERS -->
+    <div class="page" id="page-players">
+      <div class="page-hd">
+        <span class="page-eye">Player Management</span>
+        <h1 class="page-title">Players</h1>
+        <p class="page-desc">View all players. Reset stats or streaks individually.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span></span> All Players</div>
+        <div style="overflow-x:auto">
+          <table class="atable" id="players-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Lifetime</th>
+                <th>Streak</th>
+                <th>Level</th>
+                <th>Pending</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="players-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--tm);padding:24px">Loading players…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATE VOTE -->
+    <div class="page" id="page-simulate">
+      <div class="page-hd">
+        <span class="page-eye">Tools</span>
+        <h1 class="page-title">Simulate Vote</h1>
+        <p class="page-desc">Manually trigger a vote event for any player. Useful for testing reward flows.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="9" width="16" height="12" rx="1"/><path d="M9 9V6a3 3 0 0 1 6 0v3M9 14l2 2 4-4"/></svg></span>️</span> Vote Simulation</div>
+        <div class="row">
+          <div class="field">
+            <label>Player Username</label>
+            <input class="inp" id="sim-username" type="text" placeholder="PathumDH" maxlength="24"/>
+          </div>
+          <div class="field">
+            <label>Vote Site</label>
+            <select class="inp" id="sim-site">
+              <option value="planetmc">Planet Minecraft</option>
+              <option value="mcservers">MC-Servers.org</option>
+              <option value="topg">TopG.org</option>
+              <option value="mclist">Minecraft-List.org</option>
+              <option value="serverpact">ServerPact</option>
+              <option value="bestmc">Best-MC-Servers</option>
+            </select>
+          </div>
+          <div class="field" style="flex:0">
+            <label>&nbsp;</label>
+            <button class="btn btn-c" onclick="Admin.simulateVote()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="9" width="16" height="12" rx="1"/><path d="M9 9V6a3 3 0 0 1 6 0v3M9 14l2 2 4-4"/></svg></span>️ Simulate</button>
+          </div>
+        </div>
+        <div id="sim-result"></div>
+      </div>
+
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M5.5 9A7 7 0 0 1 19 8M18.5 15A7 7 0 0 1 5 16"/></svg></span></span> Reset Player</div>
+        <p style="font-size:.83rem;color:var(--t2);margin-bottom:16px">Resets all stats to zero. Cannot be undone.</p>
+        <div class="row">
+          <div class="field">
+            <label>Player Username</label>
+            <input class="inp" id="reset-username" type="text" placeholder="PathumDH" maxlength="24"/>
+          </div>
+          <div class="field" style="flex:0">
+            <label>&nbsp;</label>
+            <button class="btn btn-r" onclick="Admin.resetPlayer()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg></span>️ Reset All Stats</button>
+          </div>
+          <div class="field" style="flex:0">
+            <label>&nbsp;</label>
+            <button class="btn btn-o" onclick="Admin.resetStreak()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c4 0 7-2.5 7-6.5C19 12 16 9 15 6c-.5 2-2 3-2 3 0-3-1.5-5.5-4-7-.5 3-2 5-3.5 7.5C4.5 11.5 4 14 4 15.5 4 19.5 8 22 12 22"/></svg></span> Reset Streak Only</button>
+          </div>
+        </div>
+        <div id="reset-result"></div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENT -->
+    <div class="page" id="page-announcement">
+      <div class="page-hd">
+        <span class="page-eye">Communication</span>
+        <h1 class="page-title">Announcement Bar</h1>
+        <p class="page-desc">The announcement bar appears at the top of the player dashboard.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11v3a1 1 0 0 0 1 1h2l4 5V6L6 9H4a1 1 0 0 0-1 2"/><path d="M15 7a4 4 0 0 1 0 10"/><path d="M18 5a8 8 0 0 1 0 14"/></svg></span></span> Current Announcement</div>
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" id="ann-enabled"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Enable announcement bar</span>
+        </div>
+        <div class="field">
+          <label>Message Text</label>
+          <input class="inp" id="ann-text" type="text" placeholder="Double XP Weekend is LIVE! Vote now for bonus rewards."/>
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select class="inp" id="ann-type">
+            <option value="info">Info (Cyan)</option>
+            <option value="warning">Warning (Gold)</option>
+            <option value="success">Success (Green)</option>
+          </select>
+        </div>
+        <button class="btn btn-c" onclick="Admin.saveAnnouncement()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v6h8V4M8 21v-6h8v6"/></svg></span> Save & Publish</button>
+        <div id="ann-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- DAILY MESSAGES -->
+    <div class="page" id="page-messages">
+      <div class="page-hd">
+        <span class="page-eye">Content</span>
+        <h1 class="page-title">Daily Messages</h1>
+        <p class="page-desc">These rotate in the flavor text bar on the player dashboard. One message per line.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h11v14a2 2 0 0 1-2 2H7"/><path d="M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2M7 9h8M7 13h8"/></svg></span></span> Message Pool</div>
+        <div class="field">
+          <label>Messages (one per line)</label>
+          <textarea class="txta" id="msgs-input" style="min-height:200px"></textarea>
+        </div>
+        <div style="display:flex;gap:12px">
+          <button class="btn btn-c" onclick="Admin.saveMessages()"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v6h8V4M8 21v-6h8v6"/></svg></span> Save Messages</button>
+          <button class="btn btn-ghost" onclick="Admin.loadMessages()">↺ Reload from Server</button>
+        </div>
+        <div id="msgs-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-applications">
+      <div class="page-hd">
+        <span class="page-eye">Management</span>
+        <h1 class="page-title">Staff Applications</h1>
+        <p class="page-desc">Review submissions from the public Staff page. Accept, reject, or delete.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span> Submitted Applications</div>
+        <div id="applications-list"><p class="muted">Loading…</p></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-security">
+      <div class="page-hd">
+        <span class="page-eye">Defense</span>
+        <h1 class="page-title">Security Log</h1>
+        <p class="page-desc">IPs that hit the vote rate limit or failed admin login. Read-only, for your visibility - this is not a tool for attacking anyone, just a record of who's hitting your limits.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5z"/></svg></span>️</span> Recent Events (last 200)</div>
+        <div id="security-log-list"><p class="muted">Loading…</p></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-audit">
+      <div class="page-hd">
+        <span class="page-eye">Accountability</span>
+        <h1 class="page-title">Audit Log</h1>
+        <p class="page-desc">Every admin action that changes data - player resets, application decisions, config edits - with who did it, from what IP, and when. The "who" is just the name typed in on login, since this panel uses one shared password rather than separate staff accounts.</p>
+      </div>
+      <div class="acard">
+        <div class="acard-title"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h11v14a2 2 0 0 1-2 2H7"/><path d="M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2M7 9h8M7 13h8"/></svg></span> Recent Actions (last 500)</div>
+        <div id="audit-log-list"><p class="muted">Loading…</p></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/shared.js"></script>
+
+
+<script>
+// Admin panel client logic - talks to /api/admin/* using the header password entered in the login form below.
+const BACKEND = window.REALMCRAFT_API || 'http://localhost:3001';
+let PWD = '';
+let ADMIN_NAME = localStorage.getItem('rc_admin_name') || '';
+
+const Admin = {
+
+  // AUTH
+  async login() {
+    const input = document.getElementById('gate-pwd');
+    const nameInput = document.getElementById('gate-name');
+    const err   = document.getElementById('gate-err');
+    PWD = input.value.trim();
+    ADMIN_NAME = nameInput.value.trim();
+    if (!PWD) { err.textContent = 'Please enter the admin password.'; return; }
+
+    try {
+      const res = await adminFetch('GET', '/api/admin/stats');
+      if (res.success) {
+        if (ADMIN_NAME) localStorage.setItem('rc_admin_name', ADMIN_NAME);
+        document.getElementById('login-gate').style.display    = 'none';
+        document.getElementById('admin-layout').style.display  = 'grid';
+        Admin.nav('overview');
+        Admin.refreshStats();
+        Admin.loadMessages();
+        Admin.loadAnnouncement();
+      }
+    } catch(e) {
+      err.textContent = e.status === 401 ? 'Wrong password.' : 'Cannot connect to backend at ' + BACKEND;
+    }
+  },
+
+  logout() {
+    PWD = '';
+    document.getElementById('login-gate').style.display   = 'flex';
+    document.getElementById('admin-layout').style.display = 'none';
+    document.getElementById('gate-pwd').value = '';
+    document.getElementById('gate-err').textContent = '';
+  },
+
+  // NAVIGATION
+  nav(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('page-' + page)?.classList.add('active');
+    document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+    if (page === 'players') Admin.loadPlayers();
+    if (page === 'security') Admin.loadSecurityLog();
+    if (page === 'audit') Admin.loadAuditLog();
+    if (page === 'applications') Admin.loadApplications();
+  },
+
+  async loadSecurityLog() {
+    const el = document.getElementById('security-log-list');
+    try {
+      const { data } = await adminFetch('GET', '/api/admin/security-log');
+      el.innerHTML = data.length === 0
+        ? '<p class="muted">No suspicious activity recorded.</p>'
+        : `<table class="atable"><thead><tr><th>Time</th><th>IP</th><th>Path</th><th>Reason</th></tr></thead><tbody>${
+            data.map(e => `<tr><td>${new Date(e.at).toLocaleString()}</td><td>${e.ip}</td><td>${e.path}</td><td>${e.reason}</td></tr>`).join('')
+          }</tbody></table>`;
+    } catch {
+      el.innerHTML = '<p class="muted">Could not load security log.</p>';
+    }
+  },
+
+  async loadAuditLog() {
+    const el = document.getElementById('audit-log-list');
+    try {
+      const { data } = await adminFetch('GET', '/api/admin/audit-log');
+      el.innerHTML = data.length === 0
+        ? '<p class="muted">No admin actions recorded yet.</p>'
+        : `<table class="atable"><thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th><th>IP</th></tr></thead><tbody>${
+            data.map(e => `<tr><td>${new Date(e.at).toLocaleString()}</td><td>${e.admin}</td><td class="mono">${e.action}</td><td>${e.target || '—'}</td><td>${e.ip}</td></tr>`).join('')
+          }</tbody></table>`;
+    } catch {
+      el.innerHTML = '<p class="muted">Could not load audit log.</p>';
+    }
+  },
+
+  async loadApplications() {
+    const el = document.getElementById('applications-list');
+    try {
+      const { data } = await adminFetch('GET', '/api/admin/applications');
+      el.innerHTML = data.length === 0
+        ? '<p class="muted">No applications submitted yet.</p>'
+        : data.map(a => `
+          <div class="acard" style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+              <div>
+                <strong>${a.username}</strong> <span class="muted">applying for</span> <strong>${a.position}</strong>
+                <span class="badge ${a.status === 'accepted' ? 'b-green' : a.status === 'rejected' ? 'b-muted' : 'b-gold'}" style="margin-left:8px">${a.status}</span>
+              </div>
+              <span class="muted" style="font-size:.75rem">${new Date(a.submittedAt).toLocaleString()}</span>
+            </div>
+            <p style="font-size:.82rem;color:var(--bone-d);margin-bottom:6px"><strong>Age:</strong> ${a.age} · <strong>Discord:</strong> ${a.discord || '—'}</p>
+            <p style="font-size:.82rem;margin-bottom:6px"><strong>Experience:</strong> ${a.experience}</p>
+            <p style="font-size:.82rem;margin-bottom:14px"><strong>Why them:</strong> ${a.whyYou}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-g" onclick="Admin.setApplicationStatus('${a.id}','accepted')">Accept</button>
+              <button class="btn btn-ghost" onclick="Admin.setApplicationStatus('${a.id}','rejected')">Reject</button>
+              <button class="btn btn-ghost" onclick="Admin.deleteApplication('${a.id}')">Delete</button>
+            </div>
+          </div>`).join('');
+    } catch {
+      el.innerHTML = '<p class="muted">Could not load applications.</p>';
+    }
+  },
+
+  async setApplicationStatus(id, status) {
+    try {
+      await adminFetch('POST', `/api/admin/applications/${id}/status`, { status });
+      Admin.loadApplications();
+    } catch (e) {
+      alert(e.message || 'Could not update application.');
+    }
+  },
+
+  async deleteApplication(id) {
+    if (!confirm('Delete this application permanently?')) return;
+    try {
+      await adminFetch('DELETE', `/api/admin/applications/${id}`);
+      Admin.loadApplications();
+    } catch (e) {
+      alert(e.message || 'Could not delete application.');
+    }
+  },
+
+  // STATS
+  async refreshStats() {
+    try {
+      const { data } = await adminFetch('GET', '/api/admin/stats');
+      setText('ov-today',   data.statsToday);
+      setText('ov-weekly',  data.statsWeekly);
+      setText('ov-players', data.totalPlayers);
+      setText('ov-pending', data.pendingRewards);
+      setText('ov-active',  data.activeToday);
+      setText('ov-streak',  data.topStreak + ' days');
+      setText('ov-earned',  data.totalRewardsEarned);
+      setText('ov-top',     data.topSupporterToday);
+    } catch(e) { console.warn('Stats failed', e); }
+  },
+
+  // PLAYERS
+  async loadPlayers() {
+    const tbody = document.getElementById('players-tbody');
+    try {
+      const { data } = await adminFetch('GET', '/api/admin/players');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tm);padding:24px">No players yet.</td></tr>'; return; }
+
+      tbody.innerHTML = data
+        .sort((a,b) => b.lifetimeVotes - a.lifetimeVotes)
+        .map(p => `
+          <tr>
+            <td><strong>${p.username}</strong></td>
+            <td class="mono">${p.lifetimeVotes.toLocaleString()}</td>
+            <td><span class="badge ${p.streak >= 7 ? 'b-gold' : p.streak >= 3 ? 'b-green' : 'b-muted'}">${icon('fire')} ${p.streak}d</span></td>
+            <td>Lv ${p.level}</td>
+            <td>${p.pendingRewards > 0 ? `<span class="badge b-gold">${p.pendingRewards}</span>` : '—'}</td>
+            <td>
+              <button class="btn btn-o" style="padding:5px 12px;font-size:.72rem" onclick="Admin.quickReset('${p.username}')">Reset</button>
+              <button class="btn btn-r" style="padding:5px 12px;font-size:.72rem;margin-left:6px" onclick="Admin.quickResetStreak('${p.username}')">Streak</button>
+            </td>
+          </tr>`).join('');
+    } catch(e) {
+      console.error(e);
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px">Could not load players: ${e.message || 'unknown error'}</td></tr>`;
+    }
+  },
+
+  async quickReset(username) {
+    if (!confirm(`Reset ALL stats for "${username}"? This cannot be undone.`)) return;
+    try {
+      await adminFetch('POST', '/api/admin/reset-player', { username });
+      alert(`${username} stats reset.`);
+      Admin.loadPlayers();
+    } catch(e) { alert(e.message); }
+  },
+
+  async quickResetStreak(username) {
+    try {
+      await adminFetch('POST', '/api/admin/reset-streak', { username });
+      alert(`${username} streak reset.`);
+      Admin.loadPlayers();
+    } catch(e) { alert(e.message); }
+  },
+
+  // SIMULATE VOTE
+  async simulateVote() {
+    const username = document.getElementById('sim-username').value.trim();
+    const siteId   = document.getElementById('sim-site').value;
+    const res_el   = document.getElementById('sim-result');
+    if (!username) { showAlert('sim-result', 'Enter a username.', 'err'); return; }
+    try {
+      const { data, rewards } = await adminFetch('POST', '/api/admin/simulate-vote', { username, siteId });
+      showAlert('sim-result', `Vote simulated for ${username}. Lifetime votes: ${data.lifetimeVotes}. Streak: ${data.streak}d.${rewards?.length ? ' Reward earned!' : ''}`, 'ok');
+    } catch(e) { showAlert('sim-result', e.message, 'err'); }
+  },
+
+  async resetPlayer() {
+    const username = document.getElementById('reset-username').value.trim();
+    if (!username) { showAlert('reset-result', 'Enter a username.', 'err'); return; }
+    if (!confirm(`Reset ALL stats for "${username}"? Cannot be undone.`)) return;
+    try {
+      await adminFetch('POST', '/api/admin/reset-player', { username });
+      showAlert('reset-result', `${username} stats reset to zero.`, 'ok');
+    } catch(e) { showAlert('reset-result', e.message, 'err'); }
+  },
+
+  async resetStreak() {
+    const username = document.getElementById('reset-username').value.trim();
+    if (!username) { showAlert('reset-result', 'Enter a username.', 'err'); return; }
+    try {
+      await adminFetch('POST', '/api/admin/reset-streak', { username });
+      showAlert('reset-result', `${username} streak reset.`, 'ok');
+    } catch(e) { showAlert('reset-result', e.message, 'err'); }
+  },
+
+  // ANNOUNCEMENT
+  async loadAnnouncement() {
+    try {
+      const { data } = await fetch(BACKEND + '/api/config').then(r => r.json());
+      const ann = data.announcement || {};
+      const chk = document.getElementById('ann-enabled');
+      const txt = document.getElementById('ann-text');
+      const typ = document.getElementById('ann-type');
+      if (chk) chk.checked    = !!ann.enabled;
+      if (txt) txt.value      = ann.text || '';
+      if (typ) typ.value      = ann.type || 'info';
+    } catch {}
+  },
+
+  async saveAnnouncement() {
+    const enabled = document.getElementById('ann-enabled').checked;
+    const text    = document.getElementById('ann-text').value.trim();
+    const type    = document.getElementById('ann-type').value;
+    try {
+      await adminFetch('POST', '/api/admin/update-announcement', { enabled, text, type });
+      showAlert('ann-result', 'Announcement updated. Reload the player dashboard to see it.', 'ok');
+    } catch(e) { showAlert('ann-result', e.message, 'err'); }
+  },
+
+  // MESSAGES
+  async loadMessages() {
+    try {
+      const { data } = await fetch(BACKEND + '/api/config').then(r => r.json());
+      const el = document.getElementById('msgs-input');
+      if (el) el.value = (data.flavorMessages || []).join('\n');
+    } catch {}
+  },
+
+  async saveMessages() {
+    const raw      = document.getElementById('msgs-input').value;
+    const messages = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    if (!messages.length) { showAlert('msgs-result', 'Enter at least one message.', 'err'); return; }
+    try {
+      await adminFetch('POST', '/api/admin/update-messages', { messages });
+      showAlert('msgs-result', `${messages.length} messages saved.`, 'ok');
+    } catch(e) { showAlert('msgs-result', e.message, 'err'); }
+  },
+};
+
+// HELPERS
+async function adminFetch(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': PWD, 'X-Admin-Name': ADMIN_NAME || 'Admin' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res  = await fetch(BACKEND + path, opts);
+  const json = await res.json();
+  if (!res.ok) {
+    const err = new Error(json.error || 'HTTP ' + res.status);
+    err.status = res.status;
+    throw err;
+  }
+  return json;
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; }
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `alert alert-${type === 'ok' ? 'ok' : 'err'}`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+document.getElementById('gate-pwd')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') Admin.login();
+});
+if (ADMIN_NAME) { const nameEl = document.getElementById('gate-name'); if (nameEl) nameEl.value = ADMIN_NAME; }
+</script>
+
+</body>
+</html>
