@@ -1,0 +1,34 @@
+{
+  "name": "realmcraft",
+  "version": "1.0.0",
+  "description": "RealmCraft — Full-Stack Minecraft Server Website with Live Status + Vote System",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "config/players.json",
+      "config/forum.json"
+    ]
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "minecraft",
+    "server",
+    "website",
+    "voting",
+    "express"
+  ],
+  "license": "MIT"
+}
