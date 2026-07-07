@@ -56,10 +56,10 @@ function icon(name, cls = '') {
 
 // Fallback values shown before /api/config loads
 let RC = {
-  serverName: 'RealmCraft',
-  serverIP:   'play.realmcraft.net',
-  discord:    'https://discord.gg/realmcraft',
-  tagline:    'The ultimate survival network.',
+  serverName: 'Nova Network',
+  serverIP:   'play.nova-smp.pro',
+  discord:    'https://discord.gg/nova-network',
+  tagline:    'The ultimate minecraft network.',
 };
 
 // NAV HTML
@@ -159,7 +159,7 @@ function buildFooter() {
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 <span id="footer-copy-name">${RC.serverName}</span> · By PathumDH (Kraken Hive Labs)</span>
+      <span>© 2026 <span id="footer-copy-name">${RC.serverName}</span> · By Lam (Nova Network)</span>
       <span style="display:flex;align-items:center;gap:8px">
         <span class="live-dot"></span>
         <span id="footer-ip" style="font-family:var(--f-mono);font-size:.7rem;color:var(--jade)">${RC.serverIP}</span>
